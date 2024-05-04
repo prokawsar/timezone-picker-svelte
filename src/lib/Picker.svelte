@@ -16,6 +16,7 @@
 
 	// We can allow the user to filter the timezones displayed to only a few
 	export let allowedTimezones = null
+	export let wrapperClass = ''
 
 	// ***** End Public API *****
 
@@ -269,112 +270,118 @@
 </script>
 
 {#if expanded}
-	<div class="overlay" on:click={reset}></div>
+	<button class="overlay" on:click={reset}></button>
 {/if}
 
-<button
-	bind:this={toggleButtonRef}
-	type="button"
-	aria-label={`${currentZone[0]} is currently selected. Change timezone`}
-	aria-haspopup="listbox"
-	data-toggle="true"
-	aria-expanded={expanded}
-	on:click={toggleExpanded}
-	on:keydown={toggleExpanded}
->
-	<span>{currentZone[0]} <small>GMT {currentZone[1]}</small></span>
-	<svg width="10" height="16" viewBox="0 0 16 16">
-		<polygon
-			x="0"
-			y="0"
-			points="8, 8, 16, 16, 0, 16"
-			transform="{expanded ? 'rotate(0)' : 'rotate(180, 8, 8)'} translate(0 -4)"
-		/>
-	</svg>
-</button>
-{#if expanded}
-	<div
-		role="menuitem"
-		tabindex="-1"
-		class="tz-dropdown"
-		transition:slide
-		on:introend={scrollToHighlighted}
-		on:keydown={keyDown}
+<div class="wrapper {wrapperClass}">
+	<button
+		bind:this={toggleButtonRef}
+		type="button"
+		aria-label={`${currentZone[0]} is currently selected. Change timezone`}
+		aria-haspopup="listbox"
+		data-toggle="true"
+		aria-expanded={expanded}
+		on:click={toggleExpanded}
+		on:keydown={toggleExpanded}
 	>
-		<span class="sr-only" id={labelId}>
-			Select a timezone from the list. Start typing to filter or use the arrow keys to navigate the
-			list
-		</span>
-		<div class="input-group">
-			<!-- svelte-ignore a11y-autofocus -->
-			<input
-				id={searchInputId}
-				bind:this={searchInputRef}
-				type="search"
-				aria-autocomplete="list"
-				aria-controls={listBoxId}
-				aria-labelledby={labelId}
-				autocomplete="off"
-				autocorrect="off"
-				placeholder="Search..."
-				bind:value={userSearch}
-				autofocus
+		<span>{currentZone[0]} <small>GMT {currentZone[1]}</small></span>
+		<svg width="10" height="16" viewBox="0 0 16 16">
+			<polygon
+				x="0"
+				y="0"
+				points="8, 8, 16, 16, 0, 16"
+				transform="{expanded ? 'rotate(0)' : 'rotate(180, 8, 8)'} translate(0 -4)"
 			/>
-
-			{#if userSearch && userSearch.length > 0}
-				<button bind:this={clearButtonRef} title="Clear search text" on:click={clearSearch}>
-					&times;
-				</button>
-			{/if}
-		</div>
-
-		<ul
+		</svg>
+	</button>
+	{#if expanded}
+		<div
+			role="menuitem"
 			tabindex="-1"
-			class="tz-groups"
-			id={listBoxId}
-			role="listbox"
-			bind:this={listBoxRef}
-			aria-labelledby={labelId}
-			aria-activedescendant={currentZone && `tz-${slugify(currentZone[0])}`}
+			class="tz-dropdown"
+			transition:slide
+			on:introend={scrollToHighlighted}
+			on:keydown={keyDown}
 		>
-			{#each Object.keys(groupedZones) as group}
-				{#if groupHasVisibleChildren(group, filteredZones)}
-					<li role="option" aria-hidden="true">
-						<p>{group}</p>
-					</li>
-					{#each Object.entries(groupedZones[group]) as [zoneLabel, zoneDetails]}
-						{#if filteredZones.includes(zoneLabel)}
-							<li
-								role="option"
-								tabindex="0"
-								id={`tz-${slugify(zoneLabel)}`}
-								bind:this={listBoxOptionRefs[zoneLabel]}
-								aria-label={`Select ${zoneDetails[0]}`}
-								aria-selected={highlightedZone === zoneDetails[0]}
-								on:mouseover={() => setHighlightedZone(zoneDetails[0])}
-								on:click={(ev) => handleTimezoneUpdate(ev, zoneLabel)}
-							>
-								{zoneDetails[0]} <span>GMT {zoneDetails[1]}</span>
-							</li>
-						{/if}
-					{/each}
+			<span class="sr-only" id={labelId}>
+				Select a timezone from the list. Start typing to filter or use the arrow keys to navigate
+				the list
+			</span>
+			<div class="input-group">
+				<!-- svelte-ignore a11y-autofocus -->
+				<input
+					id={searchInputId}
+					bind:this={searchInputRef}
+					type="search"
+					aria-autocomplete="list"
+					aria-controls={listBoxId}
+					aria-labelledby={labelId}
+					autocomplete="off"
+					autocorrect="off"
+					placeholder="Search..."
+					bind:value={userSearch}
+					autofocus
+				/>
+
+				{#if userSearch && userSearch.length > 0}
+					<button bind:this={clearButtonRef} title="Clear search text" on:click={clearSearch}>
+						&times;
+					</button>
 				{/if}
-			{/each}
-		</ul>
-	</div>
-{/if}
+			</div>
+
+			<ul
+				tabindex="-1"
+				class="tz-groups"
+				id={listBoxId}
+				role="listbox"
+				bind:this={listBoxRef}
+				aria-labelledby={labelId}
+				aria-activedescendant={currentZone && `tz-${slugify(currentZone[0])}`}
+			>
+				{#each Object.keys(groupedZones) as group}
+					{#if groupHasVisibleChildren(group, filteredZones)}
+						<li role="option" aria-hidden="true">
+							<p>{group}</p>
+						</li>
+						{#each Object.entries(groupedZones[group]) as [zoneLabel, zoneDetails]}
+							{#if filteredZones.includes(zoneLabel)}
+								<li
+									role="option"
+									tabindex="0"
+									id={`tz-${slugify(zoneLabel)}`}
+									bind:this={listBoxOptionRefs[zoneLabel]}
+									aria-label={`Select ${zoneDetails[0]}`}
+									aria-selected={highlightedZone === zoneDetails[0]}
+									on:mouseover={() => setHighlightedZone(zoneDetails[0])}
+									on:click={(ev) => handleTimezoneUpdate(ev, zoneLabel)}
+								>
+									{zoneDetails[0]} <span>GMT {zoneDetails[1]}</span>
+								</li>
+							{/if}
+						{/each}
+					{/if}
+				{/each}
+			</ul>
+		</div>
+	{/if}
+</div>
 
 <style>
 	.overlay {
+		position: fixed;
 		background: transparent;
 		height: 100vh;
-		left: 0;
-		position: fixed;
-		top: 0;
 		width: 100vw;
+		left: 0;
+		top: 0;
 		z-index: 0;
+		border: none;
 	}
 
+	.wrapper {
+		position: relative;
+	}
 	button {
 		background: transparent;
 		border: 0;
