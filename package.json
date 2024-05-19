@@ -13,6 +13,11 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/prokawsar/timezone-picker-svelte"
+	},
+	"homepage": "https://github.com/prokawsar/timezone-picker-svelte",
 	"exports": {
 		".": {
 			"svelte": "./dist/index.js"
